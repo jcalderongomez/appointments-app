@@ -1,5 +1,6 @@
 import { AppointmentModel } from '../src/models/appointment.model'
 import { pool } from '../src/db'
+import { describe, it } from 'node:test'
 
 jest.mock('../src/db', () => ({
   pool: { query: jest.fn() }
