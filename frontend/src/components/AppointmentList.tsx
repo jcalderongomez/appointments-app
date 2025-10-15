@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface Appointment {
   id: number
   patient: string
@@ -11,17 +13,41 @@ interface Props {
   onDelete: (id: number) => void
 }
 
-export default function AppointmentList({ appointments, onDelete }: Props) {
-  if (appointments.length === 0) return <p>No hay citas</p>
+const AppointmentList: React.FC<Props> = ({ appointments, onDelete }) => {
+  if (appointments.length === 0) {
+    return <p>No hay citas registradas.</p>
+  }
+
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString)
+    return date.toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  }
 
   return (
-    <ul>
+    <div>
       {appointments.map(a => (
-        <li key={a.id}>
-          <strong>{a.patient}</strong> — {a.date} {a.time} ({a.reason})
-          <button onClick={() => onDelete(a.id)}>Cancelar</button>
-        </li>
+        <div
+          key={a.id}
+          style={{
+            border: '1px solid #ccc',
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 10,
+          }}
+        >
+          <p><strong>Paciente:</strong> {a.patient}</p>
+          <p><strong>Fecha:</strong> {formatDate(a.date)}</p>
+          <p><strong>Hora:</strong> {a.time}</p>
+          <p><strong>Motivo:</strong> {a.reason}</p>
+          <button onClick={() => onDelete(a.id)}>Eliminar</button>
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }
+
+export default AppointmentList

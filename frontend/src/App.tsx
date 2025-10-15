@@ -13,30 +13,59 @@ interface Appointment {
 function App() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
 
+  // 🔄 Cargar citas al iniciar
   useEffect(() => {
     fetch('http://localhost:4000/api/appointments')
       .then(res => res.json())
-      .then(setAppointments)
+      .then(data => {
+        // Mapeamos "name" del backend → "patient" en frontend
+        const mapped = data.map((item: any) => ({
+          id: item.id,
+          patient: item.name,
+          date: item.date,
+          time: item.time,
+          reason: item.reason
+        }))
+        setAppointments(mapped)
+      })
       .catch(() => setAppointments([]))
   }, [])
 
-const addAppointment = async (appt: Omit<Appointment, 'id'>) => {
-  const res = await fetch('http://localhost:4000/api/appointments', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: appt.patient, // <-- aquí cambias patient a name
-      email: 'dummy@email.com', // si no tenés email, podés usar un placeholder
-      date: appt.date,
-      time: appt.time,
-      reason: appt.reason
+  // ➕ Crear nueva cita
+  const addAppointment = async (appt: Omit<Appointment, 'id'>) => {
+    const res = await fetch('http://localhost:4000/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: appt.patient,
+        email: 'dummy@email.com',
+        date: appt.date,
+        time: appt.time,
+        reason: appt.reason
+      })
     })
-  })
-  const newAppt = await res.json()
-  setAppointments(prev => [...prev, newAppt])
-}
 
+    const data = await res.json()
 
+    if (!res.ok) {
+      alert(data.error || 'Error al crear la cita')
+      return
+    }
+
+    // También mapeamos aquí para mantener consistencia
+    setAppointments(prev => [
+      ...prev,
+      {
+        id: data.id,
+        patient: data.name,
+        date: data.date,
+        time: data.time,
+        reason: data.reason
+      }
+    ])
+  }
+
+  // ❌ Eliminar cita
   const deleteAppointment = async (id: number) => {
     await fetch(`http://localhost:4000/api/appointments/${id}`, { method: 'DELETE' })
     setAppointments(prev => prev.filter(a => a.id !== id))

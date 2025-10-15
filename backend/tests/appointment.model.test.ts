@@ -1,6 +1,5 @@
 import { AppointmentModel } from '../src/models/appointment.model'
 import { pool } from '../src/db'
-import { describe, it } from 'node:test'
 
 jest.mock('../src/db', () => ({
   pool: { query: jest.fn() }
@@ -8,12 +7,21 @@ jest.mock('../src/db', () => ({
 
 describe('AppointmentModel.create', () => {
   it('debería insertar una cita y devolverla', async () => {
-    // 1. Simular primera consulta: sin duplicados
+    // Simular que no hay duplicados
     (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] })
 
-    // 2. Simular segunda consulta: inserción exitosa
+    // Simular la inserción exitosa
     ;(pool.query as jest.Mock).mockResolvedValueOnce({
-      rows: [{ id: 1, name: 'Juan', email: 'juan@test.com', date: '2025-10-15', time: '10:00', reason: 'Control' }]
+      rows: [
+        { 
+          id: 1, 
+          name: 'Juan', 
+          email: 'juan@test.com', 
+          date: '2025-10-15', 
+          time: '10:00', 
+          reason: 'Control' 
+        }
+      ]
     })
 
     const result = await AppointmentModel.create({
