@@ -20,15 +20,22 @@ function App() {
       .catch(() => setAppointments([]))
   }, [])
 
-  const addAppointment = async (appt: Omit<Appointment, 'id'>) => {
-    const res = await fetch('http://localhost:4000/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(appt)
+const addAppointment = async (appt: Omit<Appointment, 'id'>) => {
+  const res = await fetch('http://localhost:4000/api/appointments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: appt.patient, // <-- aquí cambias patient a name
+      email: 'dummy@email.com', // si no tenés email, podés usar un placeholder
+      date: appt.date,
+      time: appt.time,
+      reason: appt.reason
     })
-    const newAppt = await res.json()
-    setAppointments(prev => [...prev, newAppt])
-  }
+  })
+  const newAppt = await res.json()
+  setAppointments(prev => [...prev, newAppt])
+}
+
 
   const deleteAppointment = async (id: number) => {
     await fetch(`http://localhost:4000/api/appointments/${id}`, { method: 'DELETE' })
